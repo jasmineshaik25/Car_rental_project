@@ -1,0 +1,119 @@
+import datetime
+
+class CarRental:
+    def __init__(self, stock):
+        self.stock = stock
+        self.rented_cars = {}
+
+    def display_available_cars(self):
+        return f"Available cars: {self.stock}"
+
+    def rent_hourly(self, n_cars):
+        if n_cars <= 0:
+            return "Invalid input for the number of cars."
+
+        if n_cars <= self.stock:
+            current_time = datetime.datetime.now()
+            self.rented_cars.update({current_time: n_cars})
+            self.stock -= n_cars
+            return f"You have rented {n_cars} car(s) for {n_cars} hour(s)."
+
+        return "Sorry, we don't have enough cars available."
+
+    def rent_daily(self, n_cars):
+        if n_cars <= 0:
+            return "Invalid input for the number of cars."
+
+        if n_cars <= self.stock:
+            current_time = datetime.datetime.now()
+            self.rented_cars.update({current_time: n_cars})
+            self.stock -= n_cars
+            return f"You have rented {n_cars} car(s) for {n_cars} day(s)."
+
+        return "Sorry, we don't have enough cars available."
+
+    def rent_weekly(self, n_cars):
+        if n_cars <= 0:
+            return "Invalid input for the number of cars."
+
+        if n_cars <= self.stock:
+            current_time = datetime.datetime.now()
+            self.rented_cars.update({current_time: n_cars})
+            self.stock -= n_cars
+            return f"You have rented {n_cars} car(s) for {n_cars} week(s)."
+
+        return "Sorry, we don't have enough cars available."
+
+    def return_car(self, rental_time, rental_mode, n_cars):
+        if rental_time not in self.rented_cars:
+            return "Invalid rental record."
+
+        if rental_mode == "hourly":
+            rate = 10
+        elif rental_mode == "daily":
+            rate = 50
+        elif rental_mode == "weekly":
+            rate = 200
+        else:
+            return "Invalid rental mode."
+
+        rented_cars = self.rented_cars[rental_time]
+
+        if n_cars <= 0 or n_cars > rented_cars:
+            return "Invalid input for the number of cars to return."
+
+        return_time = datetime.datetime.now()
+        rental_period = (return_time - rental_time).total_seconds() / 3600  # in hours
+
+        bill = int(rental_period) * rate * n_cars
+        self.stock += n_cars
+        del self.rented_cars[rental_time]
+
+        return f"Thank you for returning {n_cars} car(s). Your total bill is ${bill}."
+
+
+class Customer:
+    def request_car(self, rental, rental_mode, n_cars):
+        if rental_mode not in ["hourly", "daily", "weekly"]:
+            return "Invalid rental mode."
+
+        return rental.rent_hourly(n_cars) if rental_mode == "hourly" else \
+            rental.rent_daily(n_cars) if rental_mode == "daily" else \
+            rental.rent_weekly(n_cars)
+
+    def return_car(self, rental, rental_time, rental_mode, n_cars):
+        return rental.return_car(rental_time, rental_mode, n_cars)
+
+
+def main():
+    car_rental = CarRental(10)
+    customer = Customer()
+
+    while True:
+        print("\nOptions:")
+        print("1. Display available cars")
+        print("2. Rent a car")
+        print("3. Return a car")
+        print("4. Quit")
+
+        choice = input("Enter your choice (1/2/3/4): ")
+
+        if choice == "1":
+            print(car_rental.display_available_cars())
+        elif choice == "2":
+            rental_mode = input("Enter rental mode (hourly/daily/weekly): ")
+            n_cars = int(input("Enter the number of cars to rent: "))
+            print(customer.request_car(car_rental, rental_mode, n_cars))
+        elif choice == "3":
+            rental_time = datetime.datetime.now()
+            rental_mode = input("Enter rental mode (hourly/daily/weekly): ")
+            n_cars = int(input("Enter the number of cars to return: "))
+            print(customer.return_car(car_rental, rental_time, rental_mode, n_cars))
+        elif choice == "4":
+            break
+        else:
+            print("Invalid input. Please enter a valid option (1/2/3/4).")
+
+
+if __name__ == "__main__":
+    main()
